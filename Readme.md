@@ -33,7 +33,7 @@ The system analyzes PGN games move-by-move, evaluates positions using Stockfish 
 ## Project Structure
 
 ```text id="struct1"
-project/
+CHESS_ENGINE/
 │
 ├── api/
 │   └── routes.py
@@ -49,7 +49,8 @@ project/
 │   └── stockfish.py
 │
 ├── game/
-│   └── pgn_parser.py
+│   ├── game_manager.py
+│   └── pgn_handler.py
 │
 └── requirements.txt
 ```
