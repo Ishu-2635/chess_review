@@ -1,139 +1,111 @@
-#analysis\analyzer.py
-'''from dataclasses import dataclass
+import os
 import chess
-from analysis.classifier import classify_move
-from engine.stockfish_engine import StockfishEngine
-from game.pgn_handler import PGNHandler
+import chess.polyglot
 
-
-@dataclass
-class MoveAnalysis:
-    move_number: int
-    side: str
-    played_move: str
-    best_move: str
-    eval_before: int
-    eval_after: int
-    centipawn_loss: int
-    classification: str
-    top_moves: list
-
-
-class Analyzer:
-    def __init__(self, engine: StockfishEngine):
-        self.engine = engine
-
-    def analyze_game(self, pgn_handler: PGNHandler):
-        board = chess.Board()
-        analyses = []
-        move_number = 1
-
-        for move in pgn_handler.get_moves():
-            side = "white" if board.turn == chess.WHITE else "black"
-
-            # 🔥 SINGLE ENGINE CALL (IMPORTANT)
-            #best_move, best_eval = self.engine.get_best_move(board)
-            top_moves = self.engine.analyze_top_moves(board, multipv=3)
-
-            best_move = top_moves[0]["move"]
-            best_eval = top_moves[0]["score"]
-
-            # Play user move
-            board.push(move)
-
-            played_eval = self.engine.evaluate_position(board)
-
-            # ✅ Correct evaluation difference
-            cp_loss = max(0, best_eval - played_eval)
-
-            top_moves_serialized = [
-                {
-                    "move": m["move"].uci(),
-                    "score": m["score"]
-                }
-                for m in top_moves
-            ]
-
-            analyses.append(
-                MoveAnalysis(
-                    move_number=move_number,
-                    side=side,
-                    played_move=move.uci(),
-                    best_move=best_move.uci() if best_move else None,
-                    eval_before=best_eval,
-                    eval_after=played_eval,
-                    centipawn_loss=cp_loss,
-                    classification=classify_move(cp_loss, best_eval, played_eval),
-                    top_moves=top_moves_serialized
-                    
-                )
-            )
-
-            if side == "black":
-                move_number += 1
-
-        return analyses'''
-import chess
-from analysis.classifier import classify_move
-from engine.stockfish_engine import StockfishEngine
-from game.pgn_handler import PGNHandler
+from analysis.classifier import (
+    classify_move,
+    compute_material_delta,
+    MoveContext,
+)
 from analysis.models import MoveAnalysis, EngineInfo
+from engine.stockfish_engine import StockfishEngine
+from game.pgn_handler import PGNHandler
+
+BOOK_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "openings.bin")
 
 
 class Analyzer:
     def __init__(self, engine: StockfishEngine):
         self.engine = engine
+        self._book  = None
+        if os.path.exists(BOOK_PATH):
+            self._book = chess.polyglot.open_reader(BOOK_PATH)
 
-    def analyze_game(self, pgn_handler: PGNHandler):
-        board = chess.Board()
-        analyses = []
+    def _is_book_move(self, board: chess.Board, move: chess.Move) -> bool:
+        if self._book is None:
+            return False
+        try:
+            return any(entry.move == move for entry in self._book.find_all(board))
+        except KeyError:
+            return False
+
+    def analyze_game(self, pgn_handler: PGNHandler) -> list[MoveAnalysis]:
+        board       = chess.Board()
+        analyses    = []
         move_number = 1
 
         for move in pgn_handler.get_moves():
+            side    = "white" if board.turn == chess.WHITE else "black"
+            is_book = self._is_book_move(board, move)
 
-            side = "white" if board.turn == chess.WHITE else "black"
+            if is_book:
+                # Skip engine calls entirely for book moves.
+                board.push(move)
+                analyses.append(MoveAnalysis(
+                    move_number    = move_number,
+                    side           = side,
+                    played_move    = move.uci(),
+                    best_move      = move.uci(),  # book move IS the best move
+                    eval_before    = 0,
+                    eval_after     = 0,
+                    centipawn_loss = 0,
+                    classification = "book",
+                    engine_info    = EngineInfo(top_moves=[]),
+                ))
+            else:
+                pre             = self.engine.analyse_position(board, multipv=3)
+                best_eval_mover = pre.score_as_cp
 
-            # 1. Engine analysis on current position
-            top_moves = self.engine.analyze_top_moves(board, multipv=3)
+                # Step 2: material delta BEFORE pushing 
+                captured_piece = None
+                if board.is_capture(move):
+                    victim = board.piece_at(move.to_square)
+                    if victim:
+                        captured_piece = victim.symbol().lower()
 
-            best_move = top_moves[0]["move"]
-            eval_before = top_moves[0]["score"]
-
-            # 2. Play move
-            board.push(move)
-
-            # 3. Evaluate new position
-            eval_after = self.engine.evaluate_position(board)
-
-            # 4. CP loss (clean version)
-            cp_loss = max(0, eval_before - eval_after)
-            cp_loss = round(cp_loss / 5) * 5
-
-            # 5. Classification
-            classification = classify_move(cp_loss, eval_before, eval_after)
-
-
-            # 6. Engine info (optional)
-            engine_info = EngineInfo(
-                top_moves=top_moves
-            )
-
-            # 7. Final object
-            analyses.append(
-                MoveAnalysis(
-                    move_number=move_number,
-                    side=side,
-                    played_move=move.uci(),
-                    best_move=best_move,
-                    eval_before=eval_before,
-                    eval_after=eval_after,
-                    centipawn_loss=cp_loss,
-                    classification=classification,
-                    engine_info=engine_info
+                material_delta = compute_material_delta(
+                    captured_piece = captured_piece,
+                    promoted_to    = chess.piece_symbol(move.promotion) if move.promotion else None,
+                    is_en_passant  = board.is_en_passant(move),
                 )
-            )
+
+                # Step 3: push the played move 
+                board.push(move)
+
+                #  Step 4: analyse position AFTER the move 
+                post              = self.engine.analyse_position(board, multipv=3)
+                played_eval_mover = -post.score_as_cp
+
+                #  Step 5: cp_loss 
+                cp_loss = max(0, best_eval_mover - played_eval_mover)
+
+                #  Step 6: classify 
+                ctx = MoveContext(
+                    cp_loss        = cp_loss,
+                    eval_before    = best_eval_mover,
+                    eval_after     = played_eval_mover,
+                    material_delta = material_delta,
+                    is_book        = False,
+                )
+                result = classify_move(ctx)
+
+                analyses.append(MoveAnalysis(
+                    move_number    = move_number,
+                    side           = side,
+                    played_move    = move.uci(),
+                    best_move      = pre.best_move,
+                    eval_before    = best_eval_mover,
+                    eval_after     = played_eval_mover,
+                    centipawn_loss = cp_loss,
+                    classification = result.classification.value,
+                    engine_info    = EngineInfo(top_moves=pre.top_moves),
+                ))
 
             if side == "black":
                 move_number += 1
 
         return analyses
+
+    def close(self):
+        if self._book:
+            self._book.close()
