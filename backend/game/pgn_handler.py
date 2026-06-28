@@ -1,6 +1,6 @@
 # game/pgn_handler.py
-
 import chess
+import io
 import chess.pgn
 from typing import List, Tuple, Generator
 
@@ -10,13 +10,8 @@ class PGNHandler:
         self.pgn_path = pgn_path
         self.game = None
 
-    # -----------------------------
-    # Loading
-    # -----------------------------
+    
     def load_pgn(self, pgn_path: str = None) -> chess.pgn.Game:
-        """
-        Load a PGN file and return a chess.pgn.Game object
-        """
         path = pgn_path or self.pgn_path
         if not path:
             raise ValueError("PGN path not provided")
@@ -29,33 +24,22 @@ class PGNHandler:
 
         return self.game
 
-    # -----------------------------
-    # Metadata
-    # -----------------------------
+   
     def get_headers(self) -> dict:
-        """
-        Return PGN headers (Event, White, Black, Result, etc.)
-        """
         if not self.game:
             raise RuntimeError("PGN not loaded")
 
         return dict(self.game.headers)
 
-    # -----------------------------
-    # Move extraction
-    # -----------------------------
+    
+
     def get_moves(self) -> List[chess.Move]:
-        """
-        Return a list of moves from the mainline
-        """
         if not self.game:
             raise RuntimeError("PGN not loaded")
 
         return list(self.game.mainline_moves())
 
-    # -----------------------------
-    # Board reconstruction
-    # -----------------------------
+    
     def replay_game(
         self,
     ) -> Generator[Tuple[chess.Board, chess.Move], None, None]:
@@ -72,9 +56,7 @@ class PGNHandler:
             board.push(move)
             yield board.copy(), move
 
-    # -----------------------------
-    # Save PGN
-    # -----------------------------
+   
     @staticmethod
     def save_game(
         board: chess.Board,
@@ -82,9 +64,7 @@ class PGNHandler:
         headers: dict,
         output_path: str,
     ):
-        """
-        Save a game to PGN
-        """
+        
         game = chess.pgn.Game()
         game.headers.update(headers)
 
@@ -99,9 +79,10 @@ class PGNHandler:
                 comments=False,
             )
             f.write(game.accept(exporter))
-    def load_pgn_from_string(self, pgn_text: str):
-        import io
+    def load_pgn_from_string(self, pgn_text: str):   
         self.game = chess.pgn.read_game(io.StringIO(pgn_text))
         if self.game is None:
-            raise ValueError("Invalid PGN string")
+            raise ValueError("Invalid or empty PGN. Make sure it is a valid PGN string.")
+        if not list(self.game.mainline_moves()):
+            raise ValueError("PGN loaded but contains no moves.")
         return self.game
