@@ -41,10 +41,13 @@ CHESS_ENGINE/
 ├── analysis/
 │   ├── analyzer.py
 │   ├── classifier.py
-│   ├── metrics.py
 │   ├── service.py
 │   └── models.py
-│
+│── data/
+|   ├── gm2001.bin
+│   └── openings.bin
+|
+|
 ├── engine/
 │   └── stockfish.py
 │
@@ -147,19 +150,25 @@ Instead of only returning the single best move, the engine returns the top N str
 
 ```json id="resp1"
 {
-  "white_accuracy": 89.4,
-  "black_accuracy": 84.7,
-  "moves": [
-    {
-      "move": "e4",
-      "best_move": "e4",
-      "eval_before": 0.0,
-      "eval_after": 0.2,
-      "cp_loss": 0,
-      "classification": "best"
+      "move_number": 4,
+      "side": "white",
+      "played_move": "f1g2",
+      "best_move": "g1e2",
+      "eval_before": 19,
+      "eval_after": 16,
+      "centipawn_loss": 3,
+      "classification": "best",
+      "symbol": "✓",
+      "color": "#2ECC71",
+      "wp_before": 0.5175,
+      "wp_after": 0.5147,
+      "wp_delta": -0.0028,
+      "top_moves": [
+        "g1e2",
+        "d2d3",
+        "f1g2"
+      ]
     }
-  ]
-}
 ```
 
 ---
@@ -177,9 +186,6 @@ Instead of only returning the single best move, the engine returns the top N str
 * JSON API responses
 * Basic move classification system
 
-### Known Limitation
-
-* Move classification is a **first version (heuristic-based)** and will be improved in future iterations with deeper engine signal usage.
 
 ---
 
@@ -192,7 +198,7 @@ Instead of only returning the single best move, the engine returns the top N str
 * Schema validation with Pydantic
 * Automated test suite
 * Performance optimizations
-* Frontend analysis board (Chess.com-style)
+* Frontend analysis board
 * Enhanced visual explanations of moves
 
 ---
