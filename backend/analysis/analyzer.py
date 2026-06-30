@@ -11,7 +11,7 @@ from analysis.models import MoveAnalysis, EngineInfo
 from engine.stockfish_engine import StockfishEngine
 from game.pgn_handler import PGNHandler
 
-BOOK_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "openings.bin")
+BOOK_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "gm2001.bin")
 
 
 class Analyzer:
@@ -79,6 +79,10 @@ class Analyzer:
                 #  Step 5: cp_loss 
                 cp_loss = max(0, best_eval_mover - played_eval_mover)
 
+
+                top_move_ucis = [m["move"] for m in pre.top_moves]
+                engine_rank   = top_move_ucis.index(move.uci()) + 1 if move.uci() in top_move_ucis else 99
+
                 #  Step 6: classify 
                 ctx = MoveContext(
                     cp_loss        = cp_loss,
@@ -86,9 +90,10 @@ class Analyzer:
                     eval_after     = played_eval_mover,
                     material_delta = material_delta,
                     is_book        = False,
+                    engine_rank = engine_rank,
                 )
                 result = classify_move(ctx)
-
+               
                 analyses.append(MoveAnalysis(
                     move_number    = move_number,
                     side           = side,
@@ -98,7 +103,7 @@ class Analyzer:
                     eval_after     = played_eval_mover,
                     centipawn_loss = cp_loss,
                     classification = result.classification.value,
-                    engine_info    = EngineInfo(top_moves=pre.top_moves),
+                    engine_info    = EngineInfo(top_moves= [m["move"] for m in pre.top_moves]),
                 ))
 
             if side == "black":

@@ -373,7 +373,7 @@ def classify_move(
     # 5. Standard centipawn-loss classification
     cp = ctx.cp_loss
 
-    if cp <= cfg.cp_best:
+    if cp <= cfg.cp_best or ctx.engine_rank==1:
         return _result(
             MoveClassification.BEST,
             "Engine's top choice — the strongest available move.",
