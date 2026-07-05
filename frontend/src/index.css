@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+:root {
+  /* Classification colors — mirrors the backend's `color` field per move.
+     Kept here too so any UI chrome (legends, filters) can reference them
+     without needing a move object in hand. */
+  --color-book: #808080;
+  --color-brilliant: #FF9800;
+  --color-best: #2196F3;
+  --color-great: #27AE60;
+  --color-excellent: #3498DB;
+  --color-good: #95A5A6;
+  --color-inaccuracy: #F39C12;
+  --color-mistake: #E67E22;
+  --color-blunder: #E74C3C;
+  --color-miss: #9B59B6;
+}
