@@ -3,7 +3,7 @@ import Card from "../components/Card";
 import PlatformSelector from "../components/PlatformSelector";
 
 const Home = () => {
-  const [platform, setPlatform] = useState("chesscom");
+  const [platform, setPlatform] = useState("chess.com");
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white flex justify-center items-center px-5">
@@ -34,7 +34,7 @@ const Home = () => {
               Selected Platform
             </p>
 
-            <h2 className="text-2xl font-semibold mt-2 capitalize">
+            <h2 className="text-2xl font-semibold mt-2 ">
               {platform}
             </h2>
 
