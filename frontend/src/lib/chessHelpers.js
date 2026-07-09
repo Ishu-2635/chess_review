@@ -1,5 +1,16 @@
 import { Chess } from 'chess.js'
 
+/**
+ * Replays a PGN or UCI move sequence and returns positions after each move.
+ *
+ * Accepts two formats:
+ *   1. Standard PGN  — "1. e4 e5 2. Nf3 Nc6 …"  (from PGN upload)
+ *   2. UCI sequence  — "1. e2e4 e7e5 2. g1f3 …"  (reconstructed from platform games)
+ *
+ * Returns { startFen, fensAfterMove[], sans[] }
+ *   fensAfterMove[i] is the board position after analysis.moves[i].
+ *   sans[i]          is the SAN notation of that move (e.g. "Nf3").
+ */
 export function derivePositions(pgnText) {
   if (!pgnText) throw new Error('No PGN text provided')
 
@@ -60,7 +71,11 @@ export function getFenForIndex(positions, currentMoveIndex) {
   return positions.fensAfterMove[currentMoveIndex] ?? positions.startFen
 }
 
-
+/**
+ * Converts a UCI move string (e.g. "e2e4", "e7e8q") to SAN from a given FEN.
+ * Used to display backend's top_moves / best_move in human-readable form.
+ * Returns null if the move is illegal from that position.
+ */
 export function uciToSan(fenBefore, uciMove) {
   if (!fenBefore || !uciMove) return null
   try {
@@ -72,5 +87,23 @@ export function uciToSan(fenBefore, uciMove) {
     return move?.san ?? null
   } catch {
     return null
+  }
+}
+
+/**
+ * Extracts White/Black player names and Elo ratings from PGN headers.
+ * Returns { white: { name, elo }, black: { name, elo } }
+ * Falls back to 'White' / 'Black' if headers are missing (e.g. platform games).
+ */
+export function parsePlayers(pgnText) {
+  const fallback = { white: { name: 'White', elo: null }, black: { name: 'Black', elo: null } }
+  if (!pgnText) return fallback
+  const get = (tag) => {
+    const match = pgnText.match(new RegExp(`\\[${tag}\\s+"([^"]+)"\\]`))
+    return match?.[1] ?? null
+  }
+  return {
+    white: { name: get('White') ?? 'White', elo: get('WhiteElo') },
+    black: { name: get('Black') ?? 'Black', elo: get('BlackElo') },
   }
 }

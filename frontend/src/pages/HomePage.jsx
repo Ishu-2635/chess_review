@@ -18,23 +18,9 @@ export default function HomePage({ onSelectSource }) {
   }
 
   return (
-    <div style={{
-      flex: 1,
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      overflow: 'hidden',
-      height: '100vh',
-    }}>
+    <div className="home-grid">
       {/* ── Left: Hero board ── */}
-      <div style={{
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #0D1117 0%, #111820 50%, #0D1117 100%)',
-        overflow: 'hidden',
-        borderRight: '1px solid var(--border)',
-      }}>
+      <div className="home-hero">
         {/* Subtle grid pattern in background */}
         <div style={{
           position: 'absolute', inset: 0,
@@ -78,14 +64,13 @@ export default function HomePage({ onSelectSource }) {
         <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }`}</style>
       </div>
 
+      {/* ── Mobile hero board (tablet/mobile only, hidden on desktop via CSS) ── */}
+      <div className="home-hero-mobile">
+        <HeroBoard />
+      </div>
+
       {/* ── Right: Controls ── */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        padding: '48px 48px',
-        overflowY: 'auto',
-      }}>
+      <div className="home-content">
         {/* Badge */}
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -94,7 +79,7 @@ export default function HomePage({ onSelectSource }) {
           width: 'fit-content',
         }}>
           <span style={{ color: 'var(--accent)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em' }}>
-            GAME ANALYSIS
+            Game ANALYSIS
           </span>
         </div>
 
@@ -122,7 +107,7 @@ export default function HomePage({ onSelectSource }) {
           }}>
             Choose a source
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+          <div className="source-cards">
             <SourceCard
               icon={<ChesscomIcon />}
               title="Chess.com"
@@ -146,17 +131,6 @@ export default function HomePage({ onSelectSource }) {
           <input ref={fileInputRef} type="file" accept=".pgn" style={{ display: 'none' }} onChange={handlePgnFile} />
         </div>
 
-        {/* URL paste */}
-        <div style={{ marginTop: '20px' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            background: 'var(--surface)', border: '1px solid var(--border)',
-            borderRadius: '10px', padding: '4px 4px 4px 14px',
-            transition: 'border-color var(--transition)',
-          }}
-            onFocusCapture={e => e.currentTarget.style.borderColor = 'var(--accent)'}
-            onBlurCapture={e => e.currentTarget.style.borderColor = 'var(--border)'}
-          >
             <LinkIcon />
             <input
               type="text"
