@@ -75,14 +75,14 @@ class MoveClassification(str, Enum):
 CLASSIFICATION_META: dict[MoveClassification, dict] = {
     MoveClassification.BRILLIANT:  {"symbol": "!!", "color": "#9B59B6"},
     MoveClassification.GREAT:      {"symbol": "!",  "color": "#27AE60"},
-    MoveClassification.BEST:       {"symbol": "✓",  "color": "#2ECC71"},
-    MoveClassification.EXCELLENT:  {"symbol": "",   "color": "#3498DB"},
-    MoveClassification.GOOD:       {"symbol": "",   "color": "#2980B9"},
-    MoveClassification.BOOK:       {"symbol": "≡",  "color": "#95A5A6"},
+    MoveClassification.BEST:       {"symbol": "✦",  "color": "#2ECC71"},
+    MoveClassification.EXCELLENT:  {"symbol": "✓✓",   "color": "#3498DB"},
+    MoveClassification.GOOD:       {"symbol": "✓",   "color": "#2980B9"},
+    MoveClassification.BOOK:       {"symbol": "≡",  "color": "#3c2c2c"},
     MoveClassification.INACCURACY: {"symbol": "?!", "color": "#F39C12"},
     MoveClassification.MISTAKE:    {"symbol": "?",  "color": "#E67E22"},
     MoveClassification.BLUNDER:    {"symbol": "??", "color": "#E74C3C"},
-    MoveClassification.MISS:       {"symbol": "⊘",  "color": "#C0392B"},
+    MoveClassification.MISS:       {"symbol": "⊘",  "color": "#C02B2B"},
 }
 
 POSITIVE_CLASSIFICATIONS = frozenset({
