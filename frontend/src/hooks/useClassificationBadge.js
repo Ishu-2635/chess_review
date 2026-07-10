@@ -24,13 +24,6 @@ if (!currentMove.classification) {
   return
 }
 
-// For moves with no symbol, use a short label abbreviation
-const LABEL_ABBREV = {
-  book:      '📖',
-  excellent: '✦',
-  good:      '✓',
-  miss:      '○',
-}
     // Destination square is last 2 chars of UCI move e.g. "e2e4" → "e4"
     const square = currentMove.played_move?.slice(2, 4)
     if (!square) return
@@ -41,7 +34,7 @@ const LABEL_ABBREV = {
 
     setBadge({
       square,
-      symbol: currentMove.symbol || LABEL_ABBREV[currentMove.classification] || '·',
+      symbol: currentMove.symbol,
       color:  currentMove.color,
       fading: false,
     })

@@ -33,6 +33,7 @@ export default function Board({ explorer }) {
   const boardOrientation = useGameStore((s) => s.boardOrientation)
   const flipBoard        = useGameStore((s) => s.flipBoard)
   const analysis         = useGameStore((s) => s.analysis)
+  const storePlayers     = useGameStore((s) => s.players)
   const { isMobile, isTablet, windowWidth } = useBreakpoint()
 
   // Board size is derived from actual reactive window width.
@@ -48,7 +49,10 @@ export default function Board({ explorer }) {
     try { return derivePositions(pgnText) } catch { return null }
   }, [pgnText])
 
-  const players = useMemo(() => parsePlayers(pgnText), [pgnText])
+  // Use players from store (set from game list) or fall back to PGN header parsing
+  const players = useMemo(() =>
+    storePlayers ?? parsePlayers(pgnText),
+  [storePlayers, pgnText])
   const topPlayer    = boardOrientation === 'white' ? players.black : players.white
   const bottomPlayer = boardOrientation === 'white' ? players.white : players.black
   const topSide      = boardOrientation === 'white' ? 'black' : 'white'

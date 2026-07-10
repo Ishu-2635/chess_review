@@ -1,6 +1,5 @@
-@import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
+@import "tailwindcss";
 :root {
   --bg:           #0D1117;
   --surface:      #161B22;
@@ -15,10 +14,10 @@
   --accent-dim:   rgba(240, 165, 0, 0.12);
   --accent-glow:  rgba(240, 165, 0, 0.25);
 
-  --color-book:        #808080;
+  --color-book:        #3c2c2c;
   --color-brilliant:   #FF9800;
-  --color-best:        #2196F3;
-  --color-great:       #27AE60;
+  --color-great:        #2196F3;
+  --color-best:       #27AE60;
   --color-excellent:   #3498DB;
   --color-good:        #95A5A6;
   --color-inaccuracy:  #F39C12;
@@ -54,14 +53,12 @@ html, body, #root {
 ::-webkit-scrollbar-thumb:hover { background: var(--surface-3); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ── Animations ── */
 @keyframes pulse       { 0%,100%{opacity:1} 50%{opacity:0.3} }
 @keyframes spin        { to { transform: rotate(360deg); } }
 @keyframes fadeInScale { from{opacity:0;transform:scale(0.6)} to{opacity:1;transform:scale(1)} }
 @keyframes fadeOut     { from{opacity:1} to{opacity:0} }
 @keyframes slideInLeft { from{transform:translateX(-100%)} to{transform:translateX(0)} }
 
-/* ── Classification badge on board ── */
 .classification-badge {
   position: absolute;
   display: flex;
@@ -83,7 +80,6 @@ html, body, #root {
   animation: fadeOut 400ms ease forwards;
 }
 
-/* ── Move explorer bar ── */
 .explorer-bar {
   display: flex;
   align-items: center;
@@ -95,7 +91,6 @@ html, body, #root {
   flex-wrap: wrap;
 }
 
-/* ── Mobile navbar ── */
 .mobile-navbar {
   display: none;
   align-items: center;
@@ -111,7 +106,6 @@ html, body, #root {
   width: 100%;
 }
 
-/* ── Sidebar overlay & drawer ── */
 .sidebar-overlay {
   display: none;
   position: fixed;

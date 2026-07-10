@@ -10,12 +10,13 @@ import { create } from 'zustand'
  */
 export const useGameStore = create((set, get) => ({
   // --- state ---
-  analysis: null,        // full /analyze response, or null if nothing loaded yet
-  pgnText: null,          // raw PGN string, needed by chess.js to derive positions
-  currentMoveIndex: -1,   // -1 = starting position, before any move played
-  status: 'idle',         // 'idle' | 'loading' | 'error'
+  analysis: null,
+  pgnText: null,
+  players: null,         // { white: { name, elo }, black: { name, elo } } — overrides PGN headers
+  currentMoveIndex: -1,
+  status: 'idle',
   errorMessage: null,
-  boardOrientation: 'white', // 'white' | 'black'
+  boardOrientation: 'white',
 
   // --- derived getters (call as get().xyz(), not reactive by themselves) ---
   currentMove: () => {
@@ -27,10 +28,11 @@ export const useGameStore = create((set, get) => ({
   totalMoves: () => get().analysis?.moves.length ?? 0,
 
   // --- actions ---
-  loadAnalysis: (analysis, pgnText) =>
+  loadAnalysis: (analysis, pgnText, players = null) =>
     set({
       analysis,
       pgnText,
+      players,
       currentMoveIndex: -1,
       status: 'idle',
       errorMessage: null,
@@ -44,7 +46,8 @@ export const useGameStore = create((set, get) => ({
     set({
       analysis: null,
       pgnText: null,
-      currentMoveIndex: 0,
+      players: null,
+      currentMoveIndex: -1,
       status: 'idle',
       errorMessage: null,
     }),

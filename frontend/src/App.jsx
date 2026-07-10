@@ -11,9 +11,10 @@ import { useBreakpoint } from './hooks/useBreakpoint'
 const PAGE_TITLES = { home: 'Home', browser: 'Games', analysis: 'Analysis' }
 
 export default function App() {
-  const [page, setPage]             = useState('home')
+  const [page, setPage]                       = useState('home')
+  const [prevPage, setPrevPage]               = useState('home') // where to go on analysis back
   const [browserPlatform, setBrowserPlatform] = useState(null)
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen]           = useState(false)
 
   const { isSmall } = useBreakpoint()
 
@@ -21,42 +22,61 @@ export default function App() {
   const setLoading   = useGameStore((s) => s.setLoading)
   const setError     = useGameStore((s) => s.setError)
 
+  function navigateTo(next) {
+    setPrevPage(page)
+    setPage(next)
+  }
+
   function handleSelectSource(source, data) {
     if (source === 'chesscom') {
-      setBrowserPlatform('chesscom'); setPage('browser')
+      setBrowserPlatform('chesscom'); navigateTo('browser')
     } else if (source === 'lichess') {
-      setBrowserPlatform('lichess'); setPage('browser')
+      setBrowserPlatform('lichess'); navigateTo('browser')
     } else if (source === 'pgn') {
       handlePgnFile(data.file)
     } else {
-      alert('URL import coming soon. Use username browser or PGN upload for now.')
+      alert('URL import coming soon. Use the username browser or PGN upload for now.')
     }
   }
 
   async function handlePgnFile(file) {
-    setLoading()
-    setPage('analysis')
+    setLoading(); navigateTo('analysis')
     try {
       const { analyzeGame } = await import('./api/analyzeGame')
       const pgnText = await file.text()
       const result  = await analyzeGame(file)
-      loadAnalysis(result, pgnText)
+      loadAnalysis(result, pgnText, null) // names come from PGN headers
     } catch (err) {
       setError(err.message)
     }
   }
 
   async function handleAnalyzeGame(game, platform) {
-    setLoading(); setPage('analysis')
+    setLoading(); navigateTo('analysis')
     try {
       const result = platform === 'chesscom'
         ? await analyzeChesscomGame(game)
         : await analyzeLichessGame(game)
+
+      // Build a minimal PGN for chess.js position replay
       const pgnText = buildPgnFromMoves(result.moves ?? [])
-      loadAnalysis(result, pgnText)
+
+      // Extract player names directly from the game list object —
+      // more reliable than parsing reconstructed PGN headers
+      const players = {
+        white: { name: game.white ?? 'White', elo: null },
+        black: { name: game.black ?? 'Black', elo: null },
+      }
+
+      loadAnalysis(result, pgnText, players)
     } catch (err) {
       setError(err.message)
     }
+  }
+
+  function handleAnalysisBack() {
+    // Go back to where we came from (browser or home)
+    setPage(prevPage === 'browser' ? 'browser' : 'home')
   }
 
   function handleSidebarNav(id) {
@@ -69,16 +89,9 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg)' }}>
-      {/* Desktop sidebar — hidden on small screens via CSS */}
       {!isSmall && (
-        <Sidebar
-          activePage={activeSidebarPage}
-          onNavigate={handleSidebarNav}
-          isDrawerMode={false}
-        />
+        <Sidebar activePage={activeSidebarPage} onNavigate={handleSidebarNav} isDrawerMode={false} />
       )}
-
-      {/* Mobile/tablet: drawer sidebar */}
       {isSmall && (
         <Sidebar
           activePage={activeSidebarPage}
@@ -89,29 +102,32 @@ export default function App() {
         />
       )}
 
-      {/* Main content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-        {/* Mobile top navbar */}
         {isSmall && (
-          <MobileNavbar
-            onOpenSidebar={() => setDrawerOpen(true)}
-            title={PAGE_TITLES[page] || ''}
-          />
+          <MobileNavbar onOpenSidebar={() => setDrawerOpen(true)} title={PAGE_TITLES[page] || ''} />
         )}
 
-        <main style={{ flex: 1, display: 'flex', overflow: page === 'analysis' && !isSmall ? 'hidden' : 'auto', minWidth: 0 }}>
+        <main style={{ flex: 1, display: 'flex', overflow: page === 'analysis' && !isSmall ? 'hidden' : 'auto', minWidth: 0, position: 'relative' }}>
+
+          {/* Home — unmount when not needed */}
           {page === 'home' && (
             <HomePage onSelectSource={handleSelectSource} />
           )}
-          {page === 'browser' && (
-            <GameBrowserPage
-              platform={browserPlatform}
-              onAnalyze={handleAnalyzeGame}
-              onBack={() => setPage('home')}
-            />
-          )}
+
+          {/* Browser — keep mounted so game list is preserved when going to analysis and back */}
+          <div style={{ display: page === 'browser' ? 'flex' : 'none', flex: 1, minWidth: 0 }}>
+            {browserPlatform && (
+              <GameBrowserPage
+                platform={browserPlatform}
+                onAnalyze={handleAnalyzeGame}
+                onBack={() => setPage('home')}
+              />
+            )}
+          </div>
+
+          {/* Analysis */}
           {page === 'analysis' && (
-            <AnalysisPage onGoHome={() => setPage('home')} />
+            <AnalysisPage onGoHome={handleAnalysisBack} />
           )}
         </main>
       </div>
