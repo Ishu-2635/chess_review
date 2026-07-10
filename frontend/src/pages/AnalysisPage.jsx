@@ -123,7 +123,7 @@ function EmptyState({ onGoHome }) {
         <button onClick={onGoHome} style={{ padding: '9px 24px', borderRadius: '8px',
           border: 'none', background: 'var(--accent)', color: '#000',
           fontWeight: 600, fontSize: '14px', cursor: 'pointer', fontFamily: 'var(--font-ui)' }}>
-          Go to Home
+          ← Back
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { fetchChesscomGames, fetchLichessGames } from '../api/analyzeGame'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 
 const RESULT_COLOR = { Win: '#27AE60', Loss: '#E74C3C', Draw: '#7D8590' }
 const SPEED_ICON   = { bullet: '⚡', blitz: '⚡', rapid: '⏱', classical: '♟', daily: '📅', correspondence: '✉' }
@@ -18,6 +19,8 @@ export default function GameBrowserPage({ platform, onAnalyze, onBack }) {
 
   const platformLabel = platform === 'chesscom' ? 'Chess.com' : 'Lichess'
   const fetcher = platform === 'chesscom' ? fetchChesscomGames : fetchLichessGames
+  const { isMobile, isTablet } = useBreakpoint()
+  const isSmall = isMobile || isTablet
 
   const loadGames = useCallback(async (user, pageNum, resultFilter) => {
     setLoading(true)
@@ -191,75 +194,115 @@ export default function GameBrowserPage({ platform, onAnalyze, onBack }) {
             </div>
           )}
 
-          {/* Games table */}
+          {/* Games list */}
           {displayed.length > 0 && (
             <div style={{
               background: 'var(--surface)', border: '1px solid var(--border)',
               borderRadius: '12px', overflow: 'hidden',
             }}>
-              {/* Table header */}
-              <div style={{
-                display: 'grid', gridTemplateColumns: '1fr 1fr 100px 80px 120px 130px',
-                padding: '10px 16px', borderBottom: '1px solid var(--border)',
-                fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)',
-                letterSpacing: '0.06em', textTransform: 'uppercase',
-              }}>
-                <span>Opponent</span>
-                <span>Opening</span>
-                <span>Speed</span>
-                <span>Result</span>
-                <span>Date</span>
-                <span></span>
-              </div>
+              {/* Desktop table header — hidden on mobile */}
+              {!isSmall && (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 100px 80px 120px 130px',
+                  padding: '10px 16px', borderBottom: '1px solid var(--border)',
+                  fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)',
+                  letterSpacing: '0.06em', textTransform: 'uppercase',
+                }}>
+                  <span>Opponent</span>
+                  <span>Opening</span>
+                  <span>Speed</span>
+                  <span>Result</span>
+                  <span>Date</span>
+                  <span></span>
+                </div>
+              )}
 
               {displayed.map((game, i) => {
-                const hovered    = hoveredId === game.game_id
-                const analyzing  = analyzingId === game.game_id
+                const hovered   = hoveredId === game.game_id
+                const analyzing = analyzingId === game.game_id
+                const opponent  = game.white?.toLowerCase() === username.toLowerCase()
+                  ? game.black : game.white
+
+                // ── Mobile card ──
+                if (isSmall) {
+                  return (
+                    <div key={game.game_id} style={{
+                      padding: '14px 16px',
+                      borderBottom: i < displayed.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                      background: hovered ? 'var(--surface-2)' : 'transparent',
+                      transition: 'background var(--transition)',
+                    }}
+                      onMouseEnter={() => setHoveredId(game.game_id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text)' }}>
+                            vs {opponent}
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                            {game.opening || '—'}
+                          </div>
+                        </div>
+                        <span style={{ fontWeight: 700, fontSize: '13px', color: RESULT_COLOR[game.result] ?? 'var(--text-muted)', flexShrink: 0, marginLeft: '12px' }}>
+                          {game.result}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                          {SPEED_ICON[game.speed]} {game.time_control} · {game.date}
+                        </div>
+                        <button
+                          onClick={() => handleAnalyze(game)}
+                          disabled={!!analyzingId}
+                          style={{
+                            padding: '5px 14px', borderRadius: '6px',
+                            border: '1px solid var(--accent)',
+                            background: analyzing ? 'var(--accent-dim)' : 'transparent',
+                            color: 'var(--accent)', fontSize: '12px', fontWeight: 600,
+                            cursor: analyzingId ? 'not-allowed' : 'pointer',
+                            fontFamily: 'var(--font-ui)',
+                            opacity: analyzingId && !analyzing ? 0.4 : 1,
+                          }}
+                        >
+                          {analyzing ? 'Analyzing…' : 'Analyze →'}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                }
+
+                // ── Desktop row ──
                 return (
                   <div
                     key={game.game_id}
                     onMouseEnter={() => setHoveredId(game.game_id)}
                     onMouseLeave={() => setHoveredId(null)}
                     style={{
-                      display: 'grid', gridTemplateColumns: '1fr 1fr 100px 80px 120px 130px',
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr 100px 80px 120px 130px',
                       padding: '12px 16px', alignItems: 'center',
                       borderBottom: i < displayed.length - 1 ? '1px solid var(--border-subtle)' : 'none',
                       background: hovered ? 'var(--surface-2)' : 'transparent',
                       transition: 'background var(--transition)',
                     }}
                   >
-                    {/* Opponent */}
                     <div style={{ fontSize: '13px', color: 'var(--text)', fontWeight: 500 }}>
-                      {game.white?.toLowerCase() === username.toLowerCase()
-                        ? `vs ${game.black}`
-                        : `vs ${game.white}`}
+                      vs {opponent}
                     </div>
-
-                    {/* Opening */}
-                    <div style={{
-                      fontSize: '12px', color: 'var(--text-muted)',
-                      whiteSpace: 'nowrap', overflow: 'hidden',
-                      textOverflow: 'ellipsis', paddingRight: '8px',
-                    }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '8px' }}>
                       {game.opening || '—'}
                     </div>
-
-                    {/* Speed */}
                     <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
                       {SPEED_ICON[game.speed] || ''} {game.time_control}
                     </div>
-
-                    {/* Result */}
                     <div style={{ fontWeight: 600, fontSize: '13px', color: RESULT_COLOR[game.result] ?? 'var(--text-muted)' }}>
                       {game.result}
                     </div>
-
-                    {/* Date */}
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                       {game.date}
                     </div>
-
-                    {/* Analyze button */}
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <button
                         onClick={() => handleAnalyze(game)}
@@ -271,8 +314,7 @@ export default function GameBrowserPage({ platform, onAnalyze, onBack }) {
                           color: hovered || analyzing ? 'var(--accent)' : 'var(--text-muted)',
                           fontSize: '13px', fontWeight: 500,
                           cursor: analyzingId ? 'not-allowed' : 'pointer',
-                          fontFamily: 'var(--font-ui)',
-                          transition: 'all var(--transition)',
+                          fontFamily: 'var(--font-ui)', transition: 'all var(--transition)',
                           opacity: analyzingId && !analyzing ? 0.4 : 1,
                         }}
                       >

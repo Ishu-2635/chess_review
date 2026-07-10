@@ -79,7 +79,7 @@ export default function HomePage({ onSelectSource }) {
           width: 'fit-content',
         }}>
           <span style={{ color: 'var(--accent)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em' }}>
-            Game ANALYSIS
+            GAME ANALYSIS
           </span>
         </div>
 
@@ -131,6 +131,17 @@ export default function HomePage({ onSelectSource }) {
           <input ref={fileInputRef} type="file" accept=".pgn" style={{ display: 'none' }} onChange={handlePgnFile} />
         </div>
 
+        {/* URL paste */}
+        <div style={{ marginTop: '20px' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            background: 'var(--surface)', border: '1px solid var(--border)',
+            borderRadius: '10px', padding: '4px 4px 4px 14px',
+            transition: 'border-color var(--transition)',
+          }}
+            onFocusCapture={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+            onBlurCapture={e => e.currentTarget.style.borderColor = 'var(--border)'}
+          >
             <LinkIcon />
             <input
               type="text"
