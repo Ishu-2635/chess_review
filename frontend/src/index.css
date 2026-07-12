@@ -1,4 +1,3 @@
-
 @import "tailwindcss";
 :root {
   --bg:           #0D1117;
@@ -14,7 +13,7 @@
   --accent-dim:   rgba(240, 165, 0, 0.12);
   --accent-glow:  rgba(240, 165, 0, 0.25);
 
-  --color-book:        #3c2c2c;
+  --color-book:        #6f5d5d;
   --color-brilliant:   #FF9800;
   --color-great:        #2196F3;
   --color-best:       #27AE60;
