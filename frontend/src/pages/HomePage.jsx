@@ -10,13 +10,6 @@ export default function HomePage({ onSelectSource }) {
     if (file) onSelectSource('pgn', { file })
   }
 
-  function handleUrlLoad() {
-    const trimmed = urlInput.trim()
-    if (!trimmed) return
-    if (trimmed.includes('chess.com')) onSelectSource('chesscom-url', { url: trimmed })
-    else if (trimmed.includes('lichess.org')) onSelectSource('lichess-url', { url: trimmed })
-  }
-
   return (
     <div className="home-grid">
       {/* ── Left: Hero board ── */}
@@ -129,45 +122,6 @@ export default function HomePage({ onSelectSource }) {
             />
           </div>
           <input ref={fileInputRef} type="file" accept=".pgn" style={{ display: 'none' }} onChange={handlePgnFile} />
-        </div>
-
-        {/* URL paste */}
-        <div style={{ marginTop: '20px' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            background: 'var(--surface)', border: '1px solid var(--border)',
-            borderRadius: '10px', padding: '4px 4px 4px 14px',
-            transition: 'border-color var(--transition)',
-          }}
-            onFocusCapture={e => e.currentTarget.style.borderColor = 'var(--accent)'}
-            onBlurCapture={e => e.currentTarget.style.borderColor = 'var(--border)'}
-          >
-            <LinkIcon />
-            <input
-              type="text"
-              placeholder="Or paste a Chess.com or Lichess game URL…"
-              value={urlInput}
-              onChange={e => setUrlInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleUrlLoad()}
-              style={{
-                flex: 1, background: 'transparent', border: 'none', outline: 'none',
-                color: 'var(--text)', fontFamily: 'var(--font-ui)', fontSize: '13px',
-              }}
-            />
-            <button
-              onClick={handleUrlLoad}
-              style={{
-                padding: '8px 18px', borderRadius: '7px', border: 'none',
-                background: 'var(--accent)', color: '#000', fontWeight: 600,
-                fontSize: '13px', cursor: 'pointer', fontFamily: 'var(--font-ui)',
-                flexShrink: 0,
-              }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-            >
-              Load Game
-            </button>
-          </div>
         </div>
 
         {/* Feature list */}
