@@ -41,11 +41,11 @@ def parse_time_control(tc: str) -> tuple[str, str]:
         else:
             readable = f"{base_min} min"
 
-        if total < 179:
+        if total < 180:
             speed = "bullet"
-        elif total < 479:
+        elif total < 480:
             speed = "blitz"
-        elif total < 1499:
+        elif total < 1500:
             speed = "rapid"
         else:
             speed = "classical"
@@ -54,17 +54,6 @@ def parse_time_control(tc: str) -> tuple[str, str]:
 
     except (ValueError, TypeError):
         return tc, "unknown"
-
-
-def format_result(result: str, username: str, white: str) -> str:
-    if result in ("1/2-1/2", "draw"):
-        return "Draw"
-    is_white = username.lower() == white.lower()
-    if result == "1-0":
-        return "Win" if is_white else "Loss"
-    if result == "0-1":
-        return "Loss" if is_white else "Win"
-    return result
 
 
 class BasePlatformClient(ABC):
