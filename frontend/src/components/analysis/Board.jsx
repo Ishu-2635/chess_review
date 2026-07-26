@@ -8,7 +8,6 @@ import { useBreakpoint } from '../../hooks/useBreakpoint'
 import EvalBar from './EvalBar'
 
 // Map UCI square name to pixel offset on the board
-// squares go a1(bottom-left) to h8(top-left) from white's perspective
 function squareToOffset(square, boardSize, orientation) {
   const file = square.charCodeAt(0) - 97  // a=0 … h=7
   const rank = parseInt(square[1]) - 1    // 1=0 … 8=7

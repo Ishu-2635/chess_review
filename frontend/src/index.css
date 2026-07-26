@@ -13,16 +13,16 @@
   --accent-dim:   rgba(240, 165, 0, 0.12);
   --accent-glow:  rgba(240, 165, 0, 0.25);
 
-  --color-book:        #6f5d5d;
-  --color-brilliant:   #FF9800;
-  --color-great:        #2196F3;
+  --color-book:        #5a3f3f;
+  --color-brilliant:   #9B59B6;
+  --color-great:        #2773AE;
   --color-best:       #27AE60;
-  --color-excellent:   #3498DB;
+  --color-excellent:   #2ECC71;
   --color-good:        #95A5A6;
   --color-inaccuracy:  #F39C12;
   --color-mistake:     #E67E22;
-  --color-blunder:     #E74C3C;
-  --color-miss:        #9B59B6;
+  --color-blunder:     #9f2121;
+  --color-miss:        #E74C3C;
 
   --font-ui:   'Inter', system-ui, sans-serif;
   --font-mono: 'DM Mono', 'Fira Code', monospace;
