@@ -32,12 +32,6 @@ class ClassifierConfig:
 
     wp_sigmoid_k: float = 0.00368208
 
-    # Raw cp is uninformative once a mate is on the board: mate-in-1 and
-    # mate-in-20 both encode to ~MATE_SCORE, so a naive sigmoid can't tell
-    # a fast, precise mate from a needlessly slow one. Win probability for
-    # a confirmed mate is instead a gentle function of mate distance
-    # itself, floored so a slow-but-certain mate never reads as remotely
-    # in doubt.
     mate_wp_decay_per_ply: float = 0.004
     mate_wp_floor:         float = 0.85
 
@@ -68,15 +62,15 @@ class MoveClassification(str, Enum):
 
 CLASSIFICATION_META: dict[MoveClassification, dict] = {
     MoveClassification.BRILLIANT:  {"symbol": "!!", "color": "#9B59B6"},
-    MoveClassification.GREAT:      {"symbol": "!",  "color": "#27AE60"},
-    MoveClassification.BEST:       {"symbol": "✦",  "color": "#2ECC71"},
-    MoveClassification.EXCELLENT:  {"symbol": "✓✓", "color": "#3498DB"},
-    MoveClassification.GOOD:       {"symbol": "✓",  "color": "#2980B9"},
-    MoveClassification.BOOK:       {"symbol": "≡",  "color": "#3c2c2c"},
+    MoveClassification.GREAT:      {"symbol": "!",  "color": "#2773AE"},
+    MoveClassification.BEST:       {"symbol": "✦",  "color": "#27AE60"},
+    MoveClassification.EXCELLENT:  {"symbol": "✓✓", "color": "#2ECC71"},
+    MoveClassification.GOOD:       {"symbol": "✓",  "color": "#95A5A6"},
+    MoveClassification.BOOK:       {"symbol": "≡",  "color": "#5a3f3f"},
     MoveClassification.INACCURACY: {"symbol": "?!", "color": "#F39C12"},
     MoveClassification.MISTAKE:    {"symbol": "?",  "color": "#E67E22"},
-    MoveClassification.BLUNDER:    {"symbol": "??", "color": "#E74C3C"},
-    MoveClassification.MISS:       {"symbol": "⊘",  "color": "#C02B2B"},
+    MoveClassification.BLUNDER:    {"symbol": "??", "color": "#9F2121"},
+    MoveClassification.MISS:       {"symbol": "⊘",  "color": "#E74C3C"},
 }
 
 POSITIVE_CLASSIFICATIONS = frozenset({
