@@ -62,7 +62,7 @@ export default function Sidebar({ activePage, onNavigate, drawerOpen, onCloseDra
           {!effectiveCollapsed && (
             <div>
               <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text)', letterSpacing: '-0.02em' }}>
-                Chess<span style={{ color: 'var(--accent)' }}>IQ</span>
+                Wood<span style={{ color: 'var(--accent)' }}>Knight</span>
               </div>
               <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Game Analysis</div>
             </div>

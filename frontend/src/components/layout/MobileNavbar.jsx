@@ -20,7 +20,7 @@ export default function MobileNavbar({ onOpenSidebar, title }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span style={{ fontSize: '18px' }}>♞</span>
         <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text)', letterSpacing: '-0.02em' }}>
-          Chess<span style={{ color: 'var(--accent)' }}>IQ</span>
+          Wood<span style={{ color: 'var(--accent)' }}>Knight</span>
         </span>
       </div>
 
