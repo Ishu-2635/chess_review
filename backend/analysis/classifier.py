@@ -300,9 +300,9 @@ def classify_move(
             MoveClassification.BOOK,
             "Opening theory — part of an established opening line.",
         )
-
-    is_sacrifice = ctx.sacrifice_cp >= cfg.brilliant_min_sacrifice and wp_drop <= cfg.wp_best
     is_critical  = ctx.runner_up_gap >= cfg.great_min_wp_gap
+    is_sacrifice = ctx.sacrifice_cp >= cfg.brilliant_min_sacrifice and wp_drop <= cfg.wp_best and is_critical
+    
     had_forced_mate_for_mover = ctx.mate_in_before is not None and ctx.mate_in_before > 0
     already_lost_by_force     = ctx.mate_in_before is not None and ctx.mate_in_before < 0
 
