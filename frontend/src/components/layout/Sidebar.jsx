@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 
 const NAV = [
   { id: 'home',        label: 'Home',        icon: HomeIcon },
+  { id: 'play',        label: 'Play',        icon: PlayIcon },
   { id: 'analysis',    label: 'Analysis',    icon: AnalysisIcon },
   { id: 'saved-games', label: 'Saved Games', icon: SavedIcon },
 ]
@@ -62,7 +63,7 @@ export default function Sidebar({ activePage, onNavigate, drawerOpen, onCloseDra
           {!effectiveCollapsed && (
             <div>
               <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text)', letterSpacing: '-0.02em' }}>
-                Wood<span style={{ color: 'var(--accent)' }}>Knight</span>
+                Chess<span style={{ color: 'var(--accent)' }}>IQ</span>
               </div>
               <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Game Analysis</div>
             </div>
@@ -158,3 +159,6 @@ function SidebarBtn({ icon, label, collapsed, onClick, danger, accent }) {
 function HomeIcon()     { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> }
 function AnalysisIcon() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> }
 function SavedIcon()    { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg> }
+function PlayIcon() {
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+}
