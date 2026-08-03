@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import SavedGamesPage from './pages/SavedGamesPage'
+import PlayPage from './pages/PlayPage'
 import SaveGameModal from './components/auth/SaveGameModal'
 import { useGameStore } from './store/useGameStore'
 import { useAuthStore } from './store/useAuthStore'
@@ -18,7 +19,7 @@ import { useBreakpoint } from './hooks/useBreakpoint'
 const PAGE_TITLES = {
   home: 'Home', browser: 'Games', analysis: 'Analysis',
   login: 'Sign In', signup: 'Sign Up', 'forgot-password': 'Reset Password',
-  'saved-games': 'Saved Games',
+  'saved-games': 'Saved Games', play: 'Play',
 }
 
 // Pages that don't show the sidebar
@@ -118,19 +119,19 @@ export default function App() {
           <MobileNavbar onOpenSidebar={() => setDrawerOpen(true)} title={PAGE_TITLES[page] || ''} />
         )}
 
-    
+        
         <main
-  style={{
-    flex: 1,
-    display: 'flex',
-    justifyContent: isAuthPage ? 'center' : 'flex-start',
-    alignItems: isAuthPage ? 'center' : 'stretch',
-    paddingTop: isAuthPage ? '25vh' : 0,
-    minWidth: 0,
-    overflow: page === 'analysis' && !isSmall ? 'hidden' : 'auto',
-    position: 'relative',
-  }}
->
+          style={{
+            flex: 1,
+            display: 'flex',
+            justifyContent: isAuthPage ? 'center' : 'flex-start',
+            alignItems: isAuthPage ? 'center' : 'stretch',
+            paddingTop: isAuthPage ? '25vh' : 0,
+            minWidth: 0,
+            overflow: page === 'analysis' && !isSmall ? 'hidden' : 'auto',
+            position: 'relative',
+          }}
+        >
           {/* Auth pages */}
           {page === 'login'            && <LoginPage onNavigate={setPage} />}
           {page === 'signup'           && <SignupPage onNavigate={setPage} />}
@@ -140,6 +141,25 @@ export default function App() {
           {page === 'home'        && <HomePage onSelectSource={handleSelectSource} onNavigate={setPage} />}
           {page === 'saved-games' && <SavedGamesPage onOpenGame={() => navigateTo('analysis')} />}
           {page === 'analysis'    && <AnalysisPage onGoHome={handleAnalysisBack} onShowSave={() => setShowSaveModal(true)} />}
+          {page === 'play' && (
+            <PlayPage
+              onNavigateAnalysis={async (pgn) => {
+                setLoading()
+                navigateTo('analysis')
+                try {
+                  // Convert PGN string to a File object so analyzeGame() can send it
+                  const blob = new Blob([pgn], { type: 'text/plain' })
+                  const file = new File([blob], 'game.pgn', { type: 'text/plain' })
+                  const { analyzeGame } = await import('./api/analyzeGame')
+                  const result = await analyzeGame(file)
+                  loadAnalysis(result, pgn, null)
+                  setShowSaveModal(true)
+                } catch (err) {
+                  setError(err.message)
+                }
+              }}
+            />
+          )}
 
           {/* Browser — kept mounted to preserve game list */}
           <div style={{ display: page === 'browser' ? 'flex' : 'none', flex: 1, minWidth: 0 }}>
