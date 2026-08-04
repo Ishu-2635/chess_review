@@ -1,2 +1,6 @@
 __pycache__/
 *.py[cod]
+.env.example
+CHANGELOG.md
+__pycache__
+.env
